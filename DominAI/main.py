@@ -7,6 +7,7 @@ from numpy.random import choice
 
 from algorithms.ISMCTS import ismcts
 import time
+import argparse
 
 PASS_STR = 'PASS'
 PASS_DOMINO = Domino(-1,-1)
@@ -235,8 +236,11 @@ def get_dominoes_list(game, player, player_tiles):
 # random.seed(100)
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r","--rounds", help="number of rounds to play", type=int, default=10)
+    args = parser.parse_args()
     results = []
-    for r in range(10): #100
+    for r in range(args.rounds): #100
         print "---------------ROUND ", r,"---------------"
         games, players_tiles = setupGame(r)
         time_elapsed = None
