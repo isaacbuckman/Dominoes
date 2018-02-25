@@ -17,7 +17,7 @@ def ISMCTS_plays(game, tiles, player, time_limit=None):
     if len(actions) == 1:
         for g in games:
             g.update(actions[0][0])
-        print "ISMCTS move: " + str(actions[0][0])
+        print "ISMCTS move (only choice): " + str(actions[0][0])
         if not actions[0][0] == PASS_DOMINO:
             tiles[player].remove(actions[0][0])
     else:
@@ -38,7 +38,7 @@ def newSmartPlays(game, tiles, player):
     if len(actions) == 1:
         for g in games:
             g.update(actions[0][0])
-        print "move: " + str(actions[0][0])
+        print "move (only choice): " + str(actions[0][0])
         if not actions[0][0] == PASS_DOMINO:
             tiles[player].remove(actions[0][0])
         time_elapsed = None
@@ -69,21 +69,57 @@ def oldSmartPlays(game, tiles, player):
     if len(actions) == 1:
         for g in games:
             g.update(actions[0][0])
-        print "move: " + str(actions[0][0])
+        print "move (only choice): " + str(actions[0][0])
         if not actions[0][0] == PASS_DOMINO:
             tiles[player].remove(actions[0][0])
+        time_elapsed = None
     else:
         pnm = ProbabilisticNegaMax(curr_game)
         depth = int(5*(2**(1./3*int(len(curr_game.dominos_played)/4))))
         print "depth: ", depth
+        start_time = time.time()
         max_move, max_score = pnm.p_negamax_ab(depth, depth, -float("inf"), float("inf"), 0)
         # max_move, max_score = pnm.p_negamax(6,0)
+        end_time = time.time()
+        time_elapsed = end_time - start_time
         for g in games:
             g.update(max_move[0], placement=max_move[1])
-        print "move " + str(max_move[0])
+        print "move: " + str(max_move[0])
         if not max_move[0] == PASS_DOMINO:
             tiles[player].remove(max_move[0])
-    return tiles
+    return tiles, time_elapsed
+
+def greedyPlays(game, tiles, player):
+    curr_game = game[player]
+    actions = curr_game.possible_actions(0, placements_included=False)
+    if len(actions) == 1:
+        if len(curr_game.possible_actions(0, placements_included=True)) > 1:
+            placement = random.choice((0,1))
+            for g in games:
+                g.update(actions[0], placement=placement)
+        else:
+            for g in games:
+                g.update(actions[0])
+        print "move (only choice): " + str(actions[0])
+        if not actions[0] == PASS_DOMINO:
+            tiles[player].remove(actions[0])
+    else:
+        domino, max_value = None, None
+        for d in actions:
+            if max_value == None or d.vals[1] + d.vals[0] > max_value:
+                max_value = d.vals[1] + d.vals[0]
+                domino = d
+        if (curr_game.ends[0] in domino and curr_game.ends[1] in domino and curr_game.ends[0] != curr_game.ends[1]):
+            placement = random.choice((0, 1))
+            for g in games:
+                g.update(domino, placement=placement)
+        else:
+            for g in games:
+                g.update(domino)
+        print "move: ", domino
+        if not domino == PASS_DOMINO:
+            tiles[player].remove(domino)
+    return tiles, None
 
 def calculate_expectation(game, depth, move, samples=50):
     exp_total = 0.0
@@ -196,11 +232,11 @@ def get_dominoes_list(game, player, player_tiles):
                 my_tiles.append(t)
         return my_tiles
     return [t for t in player_tiles[player] if t not in game.dominos_played]
-random.seed(100)
+# random.seed(100)
 
 if __name__ == '__main__':
     results = []
-    for r in range(100): #100
+    for r in range(10): #100
         print "---------------ROUND ", r,"---------------"
         games, players_tiles = setupGame(r)
         time_elapsed = None
@@ -209,7 +245,8 @@ if __name__ == '__main__':
             print 'player: ', str(player)
             # tiles = oldSmartPlays(games, players_tiles, player) if player%2==1 else newSmartPlays(games, players_tiles, player)
             print 'time_elapsed: ', time_elapsed
-            tiles, recent_time_elapsed = newSmartPlays(games, players_tiles, player) if player%2==1 else ISMCTS_plays(games, players_tiles, player, time_limit=time_elapsed)
+            # tiles, recent_time_elapsed = oldSmartPlays(games, players_tiles, player) if player%2==1 else ISMCTS_plays(games, players_tiles, player, time_limit=time_elapsed)
+            tiles, recent_time_elapsed = greedyPlays(games, players_tiles, player) if player%2==1 else ISMCTS_plays(games, players_tiles, player)
             if recent_time_elapsed != None:
                 time_elapsed = recent_time_elapsed
             print 'ends: ', games[0].ends
