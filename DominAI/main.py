@@ -238,7 +238,19 @@ def get_dominoes_list(game, player, player_tiles):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-r","--rounds", help="number of rounds to play", type=int, default=10)
+    parser.add_argument("player1", help="greedy, IMS, PIMC, or ISMCTS")
+    parser.add_argument("player2", help="greedy, IMS, PIMC, or ISMCTS")
     args = parser.parse_args()
+    players = {
+        "greedy" : greedyPlays,
+        "ims" : oldSmartPlays,
+        "pimc" : newSmartPlays,
+        "ismcts" : ISMCTS_plays
+    }
+    player1 = players[args.player1.lower()]
+    player2 = players[args.player2.lower()]
+    print player1
+    print player2
     results = []
     for r in range(args.rounds): #100
         print "---------------ROUND ", r,"---------------"
@@ -247,10 +259,8 @@ if __name__ == '__main__':
         while not games[0].is_end():
             player = games[0].curr_player
             print 'player: ', str(player)
-            # tiles = oldSmartPlays(games, players_tiles, player) if player%2==1 else newSmartPlays(games, players_tiles, player)
             print 'time_elapsed: ', time_elapsed
-            # tiles, recent_time_elapsed = oldSmartPlays(games, players_tiles, player) if player%2==1 else ISMCTS_plays(games, players_tiles, player, time_limit=time_elapsed)
-            tiles, recent_time_elapsed = greedyPlays(games, players_tiles, player) if player%2==1 else ISMCTS_plays(games, players_tiles, player)
+            tiles, recent_time_elapsed = player2(games, players_tiles, player) if player%2==1 else player1(games, players_tiles, player)
             if recent_time_elapsed != None:
                 time_elapsed = recent_time_elapsed
             print 'ends: ', games[0].ends
