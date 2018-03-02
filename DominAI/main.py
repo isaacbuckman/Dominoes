@@ -122,6 +122,34 @@ def greedyPlays(game, tiles, player):
             tiles[player].remove(domino)
     return tiles, None
 
+def randomPlays(game, tiles, player):
+    curr_game = game[player]
+    actions = curr_game.possible_actions(0, placements_included=False)
+    if len(actions) == 1:
+        if len(curr_game.possible_actions(0, placements_included=True)) > 1:
+            placement = random.choice((0,1))
+            for g in games:
+                g.update(actions[0], placement=placement)
+        else:
+            for g in games:
+                g.update(actions[0])
+        print "move (only choice): " + str(actions[0])
+        if not actions[0] == PASS_DOMINO:
+            tiles[player].remove(actions[0])
+    else:
+        domino = random.choice(actions)
+        if (curr_game.ends[0] in domino and curr_game.ends[1] in domino and curr_game.ends[0] != curr_game.ends[1]):
+            placement = random.choice((0, 1))
+            for g in games:
+                g.update(domino, placement=placement)
+        else:
+            for g in games:
+                g.update(domino)
+        print "move: ", domino
+        if not domino == PASS_DOMINO:
+            tiles[player].remove(domino)
+    return tiles, None
+
 def calculate_expectation(game, depth, move, samples=50):
     exp_total = 0.0
     remaining_dominoes = make_dominoes()
@@ -238,19 +266,18 @@ def get_dominoes_list(game, player, player_tiles):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-r","--rounds", help="number of rounds to play", type=int, default=10)
-    parser.add_argument("player1", help="greedy, IMS, PIMC, or ISMCTS")
-    parser.add_argument("player2", help="greedy, IMS, PIMC, or ISMCTS")
+    parser.add_argument("player1", help="greedy, random, IMS, PIMC, or ISMCTS")
+    parser.add_argument("player2", help="greedy, random, IMS, PIMC, or ISMCTS")
     args = parser.parse_args()
     players = {
         "greedy" : greedyPlays,
+        "random" : randomPlays,
         "ims" : oldSmartPlays,
         "pimc" : newSmartPlays,
         "ismcts" : ISMCTS_plays
     }
     player1 = players[args.player1.lower()]
     player2 = players[args.player2.lower()]
-    print player1
-    print player2
     results = []
     for r in range(args.rounds): #100
         print "---------------ROUND ", r,"---------------"
