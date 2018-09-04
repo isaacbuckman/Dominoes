@@ -91,6 +91,7 @@ def oldSmartPlays(game, tiles, player):
     return tiles, time_elapsed
 
 def greedyPlays(game, tiles, player):
+    print "GREEDY"
     curr_game = game[player]
     actions = curr_game.possible_actions(0, placements_included=False)
     if len(actions) == 1:
@@ -123,6 +124,7 @@ def greedyPlays(game, tiles, player):
     return tiles, None
 
 def randomPlays(game, tiles, player):
+    print "RANDOM"
     curr_game = game[player]
     actions = curr_game.possible_actions(0, placements_included=False)
     if len(actions) == 1:
@@ -287,7 +289,7 @@ if __name__ == '__main__':
             player = games[0].curr_player
             print 'player: ', str(player)
             print 'time_elapsed: ', time_elapsed
-            tiles, recent_time_elapsed = player2(games, players_tiles, player) if player%2==1 else player1(games, players_tiles, player)
+            tiles, recent_time_elapsed = player2(games, players_tiles, player) if player%2==0 else player1(games, players_tiles, player)
             if recent_time_elapsed != None:
                 time_elapsed = recent_time_elapsed
             print 'ends: ', games[0].ends

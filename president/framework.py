@@ -263,10 +263,10 @@ def ismcts(rootstate, itermax, verbose=False, quiet=False):
     # Output some information about the tree - can be omitted
     if verbose:
         term.clear_eol()
-        print rootnode.tree_to_string(0)
+        print(rootnode.tree_to_string(0))
     elif not quiet:
         term.clear_eol()
-        print rootnode.children_to_string()
+        print(rootnode.children_to_string())
 
     return max(rootnode.child_nodes, key=lambda
         c: c.visits).move  # return the move that was most visited
