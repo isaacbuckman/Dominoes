@@ -244,7 +244,8 @@ def ismcts(rootstate, itermax, verbose=False, quiet=False):
                 node = node.add_child(m, player)  # add child and descend tree
 
             # Simulate
-            while state.get_moves():  # while state is non-terminal
+            # while state.get_moves():  # while state is non-terminal
+            while not state.is_end():  # could instead check at start of get_moves and return none if is_end()
                 state.do_move(random.choice(state.get_moves()))
 
             # Backpropagate

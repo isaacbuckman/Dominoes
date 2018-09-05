@@ -1,6 +1,8 @@
 from framework import GameState, ismcts
 
 import random
+import collections
+from copy import deepcopy
 
 class Domino:
 	def __init__(self, a, b):
@@ -13,6 +15,8 @@ class Domino:
 		return x in self.vals
 
 	def __eq__(self, x):
+		if x is None:
+			return False
 		return x.vals == self.vals
 
 	def __str__(self):
@@ -27,6 +31,7 @@ class DominoGameState(GameState):
 		self.ends = [None, None]
 		self.player_to_move = random.randint(1,4)
 		self.player_hands = {player : [] for player in range(1, 5)}
+		self.history_deque = collections.deque(4 * [None], 4)
 
 		self._deal()
 
@@ -38,11 +43,14 @@ class DominoGameState(GameState):
 	def clone(self):
 		""" Create a deep clone of this game state.
 		"""
-		clone = DominoGameState()
-		clone.ends = self.ends
-		clone.player_to_move = self.player_to_move
-		clone.player_hands = self.player_hands
-		return clone
+		# clone = DominoGameState()
+		# clone.ends = self.ends
+		# clone.player_to_move = self.player_to_move
+		# clone.player_hands = self.player_hands
+		# clone.history_deque = self.history_deque
+
+		# return clone
+		return deepcopy(self)
 
 	def clone_and_randomize(self, observer):
 		""" Create a deep clone of this game state, randomizing any information not visible to the specified observer player.
@@ -65,6 +73,7 @@ class DominoGameState(GameState):
 		""" update a state by carrying out the given move.
 		Must update player_to_move.
 		"""
+		self.history_deque.appendleft(move[0])
 		if move[0] == Domino(-1,-1):
 			pass
 		else:
@@ -82,9 +91,8 @@ class DominoGameState(GameState):
 		""" Get all possible moves from this state.
 		"""
 		hand = self.player_hands[self.player_to_move]
-		#TODO ends after it gets to you and you have no more tiles, not on the turn when you use your last tile
 		if not hand:
-			return None
+			return []
 		if self.ends == [None, None]:
 			return [(tile, None) for tile in hand]
 		moves = []
@@ -100,13 +108,12 @@ class DominoGameState(GameState):
 	def get_result(self, player):
 		""" Get the game result from the viewpoint of player. 
 		"""
-		return len(self.player_hands[player]) == 0 or len(self.player_hands[(player % 4) + 2]) == 0
+		return len(self.player_hands[player]) == 0 or len(self.player_hands[((player + 1) % 4) + 1]) == 0
 
 	def is_end(self):
-		for player in range(1,5):
-			if len(self.player_hands[player]) == 0:
-				return True
-		return False
+		empty_hand = any(len(hand) == 0 for hand in self.player_hands.values())
+		all_passed = all(move == Domino(-1,-1) for move in self.history_deque)
+		return empty_hand or all_passed
 
 	@staticmethod
 	def _get_tiles():
