@@ -9,7 +9,7 @@ class Domino:
 		self.vals = (a,b) if a < b else (b,a)
 
 	def total_pips(self):
-		return self.vals[0] + self.vals[1]
+		return sum(self.vals)
 
 	def __contains__(self, x):
 		return x in self.vals
