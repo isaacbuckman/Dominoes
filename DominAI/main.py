@@ -283,12 +283,14 @@ if __name__ == '__main__':
     results = []
     for r in range(args.rounds): #100
         print "---------------ROUND ", r,"---------------"
-        games, players_tiles = setupGame(r)
+        # games, players_tiles = setupGame(r)
+        games, players_tiles = setupGame(random.randint(0,3))
         time_elapsed = None
         while not games[0].is_end():
             player = games[0].curr_player
             print 'player: ', str(player)
             print 'time_elapsed: ', time_elapsed
+            # tiles, recent_time_elapsed = oldSmartPlays(games, players_tiles, player) if player%2==1 else ISMCTS_plays(games, players_tiles, player, time_limit=time_elapsed) 
             tiles, recent_time_elapsed = player2(games, players_tiles, player) if player%2==0 else player1(games, players_tiles, player)
             if recent_time_elapsed != None:
                 time_elapsed = recent_time_elapsed
@@ -298,6 +300,7 @@ if __name__ == '__main__':
         results.append(computeScore(games[0], players_tiles))
         print "Game ended."
     print "-------------------STATS-------------------"
+    print "{} vs {}".format(args.player1,args.player2)
     print "Number of wins:", results.count("won")
     print "Number of losses:", results.count("lost")
     print "Number of ties:", results.count("tie")
