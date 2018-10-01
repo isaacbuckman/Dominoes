@@ -110,9 +110,14 @@ class Dominoes(ZeroSumBayesGame):
         if len(self.tiles) == 0:
             return True
         if self.last_play > 3:
+
+            # if all(map(lambda x:x==PASS_DOMINO,self.dominos_played[self.last_play-3:self.last_play+1])):
+            #     # print self.dominos_played[self.last_play-3:self.last_play+1]
+            #     print self.last_play
+            #     print self.dominos_played
             # everyone has passed
             return all(map(lambda x:x==PASS_DOMINO,
-                       self.dominos_played[self.last_play-3:self.last_play+1]))
+                       self.dominos_played[self.last_play-4:]))
         return False
 
     def make_probabilistic_move(self, player, move):

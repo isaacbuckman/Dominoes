@@ -209,7 +209,60 @@ def setupGame(r):
         Dominoes(tiles, players_tuples[3], (starter-3)%4)),
         players_tiles)
 
+# def computeScore(game, players_tiles):
+#     player_pips = [0]*4
+#     # count tiles of each player
+#     for t in game.my_tiles:
+#         if t not in game.dominos_played:
+#             player_pips[0] += sum(t.vals)
+#     for i in range(1, 4):
+#         for t in players_tiles[i]:
+#             if t not in game.dominos_played:
+#                 player_pips[i] += sum(t.vals)
+
+#     for i in range(4):
+#         print 'Player {} has pips {}'.format(i, player_pips[i])
+#     if (player_pips[0] == 0 or player_pips[2] == 0 or
+#         player_pips[0]+player_pips[2] < player_pips[1] + player_pips[3]):
+#         print 'I win!'
+#         return 'won'
+#     if (player_pips[1] == 0 or player_pips[3] == 0 or
+#         player_pips[0]+player_pips[2] > player_pips[1] + player_pips[3]):
+#         print 'I lose :('
+#         return 'lost'
+#     if player_pips[0]+player_pips[2] == player_pips[1] + player_pips[3]:
+#         print 'we tied?!'
+#         return 'tie'
+#     print "SCORES:"
+#     print "smart + greedy", score_us
+#     print "greedy + greedy", score_opp
+#     if score_us < score_opp:
+#         return "won"
+#     elif score_opp < score_us:
+#         return "lost"
+#     else:
+#         return "tie"
+#     for t in game.my_tiles:
+#         if t not in game.dominos_played:
+#             score_us += sum(t.vals)
+#     for i in range(1, 4):
+#         for t in players_tiles[i]:
+#             if t not in game.dominos_played:
+#                 if i % 2 == 0:
+#                     score_us += sum(t.vals)
+#                 else:
+#                     score_opp += sum(t.vals)
+#     print 'score is : {}'.format(q)
+#     return 'won' if q>0 else 'lost'
+
 def computeScore(game, players_tiles):
+    if (len(players_tiles[0]) == 0 or len(players_tiles[2]) == 0):
+        print 'I win!'
+        return 'won'
+    if (len(players_tiles[1]) == 0 or len(players_tiles[3]) == 0):
+        print 'I lose :('
+        return 'lost'
+
     player_pips = [0]*4
     # count tiles of each player
     for t in game.my_tiles:
@@ -222,12 +275,11 @@ def computeScore(game, players_tiles):
 
     for i in range(4):
         print 'Player {} has pips {}'.format(i, player_pips[i])
-    if (player_pips[0] == 0 or player_pips[2] == 0 or
-        player_pips[0]+player_pips[2] < player_pips[1] + player_pips[3]):
+
+    if (player_pips[0]+player_pips[2] < player_pips[1] + player_pips[3]):
         print 'I win!'
         return 'won'
-    if (player_pips[1] == 0 or player_pips[3] == 0 or
-        player_pips[0]+player_pips[2] > player_pips[1] + player_pips[3]):
+    if (player_pips[0]+player_pips[2] > player_pips[1] + player_pips[3]):
         print 'I lose :('
         return 'lost'
     if player_pips[0]+player_pips[2] == player_pips[1] + player_pips[3]:
@@ -263,7 +315,7 @@ def get_dominoes_list(game, player, player_tiles):
                 my_tiles.append(t)
         return my_tiles
     return [t for t in player_tiles[player] if t not in game.dominos_played]
-# random.seed(100)
+# random.seed(96)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -291,7 +343,8 @@ if __name__ == '__main__':
             print 'player: ', str(player)
             print 'time_elapsed: ', time_elapsed
             # tiles, recent_time_elapsed = oldSmartPlays(games, players_tiles, player) if player%2==1 else ISMCTS_plays(games, players_tiles, player, time_limit=time_elapsed) 
-            tiles, recent_time_elapsed = player2(games, players_tiles, player) if player%2==0 else player1(games, players_tiles, player)
+            tiles, recent_time_elapsed = player2(games, players_tiles, player) if player%2==1 else player1(games, players_tiles, player)
+            # tiles, recent_time_elapsed = player2(games, players_tiles, player) if player%2==1 else ISMCTS_plays(games, players_tiles, player, time_limit=20)
             if recent_time_elapsed != None:
                 time_elapsed = recent_time_elapsed
             print 'ends: ', games[0].ends
